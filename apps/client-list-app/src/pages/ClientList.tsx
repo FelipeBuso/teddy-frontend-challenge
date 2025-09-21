@@ -4,47 +4,71 @@ import api from "../services/api";
 import { type Client, type ClientsApiResponse } from "../types";
 import "./ClientList.css";
 import axios from "axios";
-import { FaPlus } from "react-icons/fa6";
-import { GoPencil, GoTrash } from "react-icons/go";
+import { ClientCard } from "../components/ClientCard";
+import { Pagination } from "@mui/material";
+import CreateClientModal from "../components/CreateClientModal";
 
 interface Props {
   userName: string;
 }
 
-const formatador = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-});
-
 const ClientList: React.FC<Props> = ({ userName }) => {
   const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClients, setSelectedClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  const selectClient = (clientId: number) => {
+    const isAlreadySelected = selectedClients.some((c) => c.id === clientId);
+
+    if (!isAlreadySelected) {
+      const client = clients.find((c) => c.id === clientId);
+      if (client) {
+        const pushedSelectedClient = [...selectedClients, client];
+        setSelectedClients(pushedSelectedClient);
+      }
+    }
+  };
+
+  const removeSelectedClient = (clientId: number) => {
+    console.log({ clientId });
+    console.log({ selectedClients });
+    const newClientList = selectedClients.filter((c) => c.id !== clientId);
+    console.log({ newClientList });
+    setSelectedClients(newClientList);
+  };
+
+  const getClients = async () => {
+    try {
+      const response = await api.get<ClientsApiResponse>("/users", {
+        params: {
+          page: currentPage,
+          limit: 16,
+        },
+      });
+
+      setClients(response.data.clients);
+      setTotalPages(response.data.totalPages);
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        setError(e.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const response = await api.get<ClientsApiResponse>("/users", {
-          params: {
-            page: 1,
-            limit: 16,
-          },
-        });
-
-        setClients(response.data.clients);
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          setError(e.message);
-        } else {
-          setError("An unknown error occurred.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClients();
+    getClients();
   }, []);
+
+  useEffect(() => {
+    getClients();
+  }, [currentPage]);
 
   if (loading) {
     return <div>Loading clients...</div>;
@@ -53,6 +77,10 @@ const ClientList: React.FC<Props> = ({ userName }) => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  const handlePageChange = (ev: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="client-list-container">
@@ -68,38 +96,26 @@ const ClientList: React.FC<Props> = ({ userName }) => {
         </div>
         <div className="clients-grid">
           {clients.map((client) => (
-            <div key={client.id} className="client-card">
-              <div className="card-header">
-                <p>{client.name}</p>
-              </div>
-              <div className="card-body">
-                <p>
-                  Salário:{" "}
-                  {client.salary ? formatador.format(client.salary) : "N/A"}
-                </p>
-                <p>
-                  Empresa:{" "}
-                  {client.companyValuation
-                    ? formatador.format(client.companyValuation)
-                    : "N/A"}
-                </p>
-              </div>
-              <div className="card-actions">
-                <button className="icon-button add-button">
-                  <FaPlus />
-                </button>
-                <button className="icon-button edit-button">
-                  <GoPencil />
-                </button>
-                <button className="icon-button delete-button">
-                  <GoTrash />
-                </button>
-              </div>
-            </div>
+            <ClientCard
+              client={client}
+              isSelected={selectedClients.some((c) => c.id === client.id)}
+              selectClient={selectClient}
+              removeClient={removeSelectedClient}
+            />
           ))}
         </div>
-        <div className="create-button-container">
-          <button className="create-client-button">Criar cliente</button>
+        <div className="clients-grid">
+          <CreateClientModal />
+        </div>
+        <div className="pagination-container">
+          <Pagination
+            count={totalPages}
+            shape="rounded"
+            onChange={handlePageChange}
+            color="primary"
+            hideNextButton
+            hidePrevButton
+          />
         </div>
       </div>
     </div>
