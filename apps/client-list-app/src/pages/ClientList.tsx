@@ -1,4 +1,3 @@
-// src/pages/ClientList.tsx
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { type Client, type ClientsApiResponse } from "../types";
