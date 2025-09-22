@@ -7,11 +7,14 @@ import {
   Button,
   Grid,
   CircularProgress,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import api from "../services/api";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { IoCloseSharp } from "react-icons/io5";
 
 const validationSchema = yup.object({
   name: yup.string().required("Digite o nome."),
@@ -43,7 +46,7 @@ interface IFormInput {
   companyValuation: number;
 }
 
-const CreateClientModal: React.FC = () => {
+const CreateClientModal: React.FC<{ refresh: () => void }> = ({ refresh }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const {
@@ -59,6 +62,7 @@ const CreateClientModal: React.FC = () => {
     setLoading(true);
     try {
       await api.post("/users", values);
+      refresh();
       setOpen(false);
     } catch (error) {
       console.log({ error });
@@ -83,6 +87,20 @@ const CreateClientModal: React.FC = () => {
         aria-describedby="create-client-modal-description"
       >
         <Box sx={style}>
+          <IconButton
+            aria-label="close"
+            onClick={() => {
+              setOpen(false);
+            }}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <IoCloseSharp />
+          </IconButton>
           <Typography
             id="create-client-modal-title"
             variant="h6"
@@ -115,6 +133,11 @@ const CreateClientModal: React.FC = () => {
                   placeholder="Digite o salário:"
                   type="number"
                   {...register("salary", { valueAsNumber: true })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">R$</InputAdornment>
+                    ),
+                  }}
                   error={!!errors.salary}
                   helperText={errors.salary?.message}
                 />
@@ -126,6 +149,11 @@ const CreateClientModal: React.FC = () => {
                   type="number"
                   placeholder="Digite o valor da empresa:"
                   {...register("companyValuation", { valueAsNumber: true })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">R$</InputAdornment>
+                    ),
+                  }}
                   error={!!errors.companyValuation}
                   helperText={errors.companyValuation?.message}
                 />

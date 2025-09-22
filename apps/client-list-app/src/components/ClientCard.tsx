@@ -1,25 +1,26 @@
+// src/components/ClientCard.tsx
 import React from "react";
 import { type Client } from "../types";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import { GoPencil, GoTrash } from "react-icons/go";
+import { currencyFormater } from "../utils";
 
 interface ClientCardProps {
   client: Client;
   isSelected: boolean;
   selectClient: (clientId: number) => void;
   removeClient: (clientId: number) => void;
+  onEdit: (client: Client) => void; // Adiciona a prop para editar
+  onDelete: (client: Client) => void; // Adiciona a prop para deletar
 }
-
-const formatador = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-});
 
 export const ClientCard: React.FC<ClientCardProps> = ({
   client,
   isSelected,
   selectClient,
   removeClient,
+  onEdit,
+  onDelete,
 }) => {
   return (
     <div key={client.id} className="client-card">
@@ -28,12 +29,13 @@ export const ClientCard: React.FC<ClientCardProps> = ({
       </div>
       <div className="card-body">
         <p>
-          Salário: {client.salary ? formatador.format(client.salary) : "N/A"}
+          Salário:{" "}
+          {client.salary ? currencyFormater.format(client.salary) : "N/A"}
         </p>
         <p>
           Empresa:{" "}
           {client.companyValuation
-            ? formatador.format(client.companyValuation)
+            ? currencyFormater.format(client.companyValuation)
             : "N/A"}
         </p>
       </div>
@@ -58,10 +60,16 @@ export const ClientCard: React.FC<ClientCardProps> = ({
             <FaPlus />
           </button>
         )}
-        <button className="icon-button edit-button">
+        <button
+          className="icon-button edit-button"
+          onClick={() => onEdit(client)}
+        >
           <GoPencil />
         </button>
-        <button className="icon-button delete-button">
+        <button
+          className="icon-button delete-button"
+          onClick={() => onDelete(client)}
+        >
           <GoTrash />
         </button>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   Box,
@@ -7,11 +7,14 @@ import {
   Button,
   Grid,
   CircularProgress,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import api from "../services/api";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Client } from "../types";
+import { IoCloseSharp } from "react-icons/io5";
 
 const validationSchema = yup.object({
   name: yup.string().required("Digite o nome."),
@@ -37,15 +40,27 @@ const style = {
   borderRadius: "8px",
 };
 
-interface IFormInput {
+export interface IFormInput {
   name: string;
   salary: number;
   companyValuation: number;
 }
 
-const CreateClientModal: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+interface EditClientModalProps {
+  open: boolean;
+  onClose: () => void;
+  loading: boolean;
+  client: Client;
+  onEditClient: (values: IFormInput) => void;
+}
+
+const EditClientModal: React.FC<EditClientModalProps> = ({
+  open,
+  onClose,
+  loading,
+  client,
+  onEditClient,
+}) => {
   const {
     register,
     handleSubmit,
@@ -53,124 +68,127 @@ const CreateClientModal: React.FC = () => {
     formState: { errors },
   } = useForm<IFormInput>({
     resolver: yupResolver(validationSchema),
+    defaultValues: {
+      name: client.name,
+      salary: client.salary,
+      companyValuation: client.companyValuation,
+    },
   });
 
-  const createClient = async (values: IFormInput) => {
-    setLoading(true);
-    try {
-      await api.post("/users", values);
-      setOpen(false);
-    } catch (error) {
-      console.log({ error });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Resetar o formulário quando o cliente mudar
+  useEffect(() => {
+    reset({
+      name: client.name,
+      salary: client.salary,
+      companyValuation: client.companyValuation,
+    });
+  }, [client, reset]);
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    createClient(data);
-    reset();
+    onEditClient(data);
   };
 
   return (
-    <div className="modal-container">
-      <Modal
-        open={open}
-        onClose={() => {
-          setOpen(false);
-        }}
-        aria-labelledby="create-client-modal-title"
-        aria-describedby="create-client-modal-description"
-      >
-        <Box sx={style}>
-          <Typography
-            id="create-client-modal-title"
-            variant="h6"
-            component="h2"
-          >
-            Criar cliente:
-          </Typography>
-
-          <Box
-            component="form"
-            onSubmit={handleSubmit(onSubmit)}
-            sx={{ mt: 3 }}
-          >
-            <Grid container spacing={1}>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Digite o nome:"
-                  {...register("name", { required: "Nome é obrigatório" })}
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
-                />
-              </Grid>
-
-              <Grid size={12}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder="Digite o salário:"
-                  type="number"
-                  {...register("salary", { valueAsNumber: true })}
-                  error={!!errors.salary}
-                  helperText={errors.salary?.message}
-                />
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  type="number"
-                  placeholder="Digite o valor da empresa:"
-                  {...register("companyValuation", { valueAsNumber: true })}
-                  error={!!errors.companyValuation}
-                  helperText={errors.companyValuation?.message}
-                />
-              </Grid>
-            </Grid>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                mt: 3,
-                gap: 1,
-              }}
-            >
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                color="primary"
-                startIcon={
-                  loading ? (
-                    <CircularProgress color="inherit" size="18px" />
-                  ) : undefined
-                }
-              >
-                Criar cliente
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-      </Modal>
-      <div className="create-button-container">
-        <Button
-          fullWidth
-          type="button"
-          variant="outlined"
-          color="primary"
-          onClick={() => {
-            setOpen(true);
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="edit-client-modal-title"
+      aria-describedby="edit-client-modal-description"
+    >
+      <Box sx={style}>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
           }}
         >
-          Criar cliente
-        </Button>
-      </div>
-    </div>
+          <IoCloseSharp />
+        </IconButton>
+        <Typography
+          id="edit-client-modal-title"
+          variant="h6"
+          component="h2"
+          sx={{ mb: 2 }}
+        >
+          Editar cliente:
+        </Typography>
+
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={1}>
+            <Grid size={12}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Nome"
+                {...register("name")}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+              />
+            </Grid>
+
+            <Grid size={12}>
+              <TextField
+                size="small"
+                fullWidth
+                label="Salário"
+                type="number"
+                {...register("salary", { valueAsNumber: true })}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
+                }}
+                error={!!errors.salary}
+                helperText={errors.salary?.message}
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                size="small"
+                fullWidth
+                type="number"
+                label="Valor da empresa"
+                {...register("companyValuation", { valueAsNumber: true })}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
+                }}
+                error={!!errors.companyValuation}
+                helperText={errors.companyValuation?.message}
+              />
+            </Grid>
+          </Grid>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              mt: 3,
+              gap: 1,
+            }}
+          >
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              color="primary"
+              startIcon={
+                loading ? (
+                  <CircularProgress color="inherit" size="18px" />
+                ) : undefined
+              }
+            >
+              Salvar Alterações
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    </Modal>
   );
 };
 
-export default CreateClientModal;
+export default EditClientModal;
