@@ -6,7 +6,7 @@ type FormInputs = {
   userName: string;
 };
 
-export const WelcomeForm = () => {
+export const WelcomePage = () => {
   const {
     register,
     handleSubmit,
