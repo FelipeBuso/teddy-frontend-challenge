@@ -8,7 +8,7 @@ import { ClientCard } from "../components/ClientCard";
 import { Pagination, Button, CircularProgress } from "@mui/material";
 import CreateClientModal from "../components/CreateClientModal";
 import EditClientModal from "../components/EditClientModal";
-// import DeleteClientModal from "../components/DeleteClientModal";
+import DeleteClientModal from "../components/DeleteClientModal";
 import { type IFormInput } from "../components/EditClientModal";
 
 interface Props {
@@ -182,7 +182,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
           onEditClient={handleEditClient}
         />
       )}
-      {/* {selectedClient && (
+      {selectedClient && (
         <DeleteClientModal
           open={isDeleteModalOpen}
           onClose={handleCloseDeleteModal}
@@ -190,7 +190,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
           clientName={selectedClient.name}
           onDeleteConfirm={handleDeleteClient}
         />
-      )} */}
+      )}
     </div>
   );
 };
