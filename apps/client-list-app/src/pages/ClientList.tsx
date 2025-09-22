@@ -10,6 +10,7 @@ import CreateClientModal from "../components/CreateClientModal";
 import EditClientModal from "../components/EditClientModal";
 import DeleteClientModal from "../components/DeleteClientModal";
 import { type IFormInput } from "../components/EditClientModal";
+import Logo from "../assets/logo.svg";
 
 interface Props {
   userName: string;
@@ -26,7 +27,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
   const selectClient = (clientId: number) => {
     const isAlreadySelected = selectedClients.some((c) => c.id === clientId);
 
@@ -128,6 +129,14 @@ const ClientList: React.FC<Props> = ({ userName }) => {
     }
   };
 
+  const handleShowAllClients = () => {
+    setShowSelectedOnly(false);
+  };
+
+  const handleShowSelectedClients = () => {
+    setShowSelectedOnly(true);
+  };
+
   if (loading) {
     return <CircularProgress />;
   }
@@ -138,17 +147,47 @@ const ClientList: React.FC<Props> = ({ userName }) => {
   return (
     <div className="client-list-container">
       <header className="main-header">
-        <div className="header-left">{/* Logo e navegação */}</div>
+        <div className="header-left">
+          <img src={Logo} alt="Logo" width={100} height={50} />
+        </div>
+        <div className="header-center">
+          <button
+            className={
+              showSelectedOnly
+                ? "main-header-button"
+                : "main-header-button-selected"
+            }
+            disabled={!showSelectedOnly}
+            onClick={handleShowAllClients}
+          >
+            Clientes
+          </button>
+          <button
+            className={
+              showSelectedOnly
+                ? "main-header-button-selected"
+                : "main-header-button"
+            }
+            disabled={showSelectedOnly}
+            onClick={handleShowSelectedClients}
+          >
+            Clientes selecionados
+          </button>
+        </div>
         <div className="header-right">
           <span>Olá, {userName}!</span>
         </div>
       </header>
       <div className="main-content">
         <div className="clients-grid">
-          <h2 className="title">{clients.length} clientes encontrados:</h2>
+          <h2 className="title">
+            {showSelectedOnly
+              ? `${selectedClients.length} clientes selecionados:`
+              : `${clients.length} clientes encontrados:`}
+          </h2>
         </div>
         <div className="clients-grid">
-          {clients.map((client) => (
+          {(showSelectedOnly ? selectedClients : clients).map((client) => (
             <ClientCard
               key={client.id}
               client={client}
@@ -161,16 +200,18 @@ const ClientList: React.FC<Props> = ({ userName }) => {
           ))}
           <CreateClientModal refresh={getClients} />
         </div>
-        <div className="pagination-container">
-          <Pagination
-            count={totalPages}
-            shape="rounded"
-            onChange={handlePageChange}
-            color="primary"
-            hideNextButton
-            hidePrevButton
-          />
-        </div>
+        {!showSelectedOnly && (
+          <div className="pagination-container">
+            <Pagination
+              count={totalPages}
+              shape="rounded"
+              onChange={handlePageChange}
+              color="primary"
+              hideNextButton
+              hidePrevButton
+            />
+          </div>
+        )}
       </div>
 
       {selectedClient && (
