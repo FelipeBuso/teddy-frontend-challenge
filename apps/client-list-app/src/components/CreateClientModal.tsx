@@ -15,17 +15,14 @@ import api from "../services/api";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IoCloseSharp } from "react-icons/io5";
+import { normalizeNumberValue } from "../utils";
+import { InputNumberMaskController } from "./form/InputNumberMaskController";
+import { InputController } from "./form/InputController";
 
 const validationSchema = yup.object({
   name: yup.string().required("Digite o nome."),
-  salary: yup
-    .number()
-    .typeError("Informe o salário")
-    .required("Digite o salário."),
-  companyValuation: yup
-    .number()
-    .typeError("Informe valor da empresa.")
-    .required("Digite o valor da empresa."),
+  salary: yup.string().required("Digite o salário."),
+  companyValuation: yup.string().required("Digite o valor da empresa."),
 });
 
 const style = {
@@ -42,6 +39,12 @@ const style = {
 
 interface IFormInput {
   name: string;
+  salary: string;
+  companyValuation: string;
+}
+
+interface IFormSubmit {
+  name: string;
   salary: number;
   companyValuation: number;
 }
@@ -50,15 +53,15 @@ const CreateClientModal: React.FC<{ refresh: () => void }> = ({ refresh }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const {
-    register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<IFormInput>({
+  } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
-  const createClient = async (values: IFormInput) => {
+  const createClient = async (values: IFormSubmit) => {
     setLoading(true);
     try {
       await api.post("/users", values);
@@ -72,7 +75,12 @@ const CreateClientModal: React.FC<{ refresh: () => void }> = ({ refresh }) => {
   };
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    createClient(data);
+    const payload: IFormSubmit = {
+      name: data.name,
+      salary: normalizeNumberValue(data.salary),
+      companyValuation: normalizeNumberValue(data.companyValuation),
+    };
+    createClient(payload);
     reset();
   };
 
@@ -116,46 +124,28 @@ const CreateClientModal: React.FC<{ refresh: () => void }> = ({ refresh }) => {
           >
             <Grid container spacing={1}>
               <Grid size={12}>
-                <TextField
-                  fullWidth
-                  size="small"
+                <InputController
+                  name="name"
                   placeholder="Digite o nome:"
-                  {...register("name", { required: "Nome é obrigatório" })}
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
+                  control={control}
+                  errors={errors}
                 />
               </Grid>
 
               <Grid size={12}>
-                <TextField
-                  size="small"
-                  fullWidth
+                <InputNumberMaskController
+                  name="salary"
                   placeholder="Digite o salário:"
-                  type="number"
-                  {...register("salary", { valueAsNumber: true })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                  }}
-                  error={!!errors.salary}
-                  helperText={errors.salary?.message}
+                  control={control}
+                  errors={errors}
                 />
               </Grid>
               <Grid size={12}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  type="number"
+                <InputNumberMaskController
+                  name="companyValuation"
                   placeholder="Digite o valor da empresa:"
-                  {...register("companyValuation", { valueAsNumber: true })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                  }}
-                  error={!!errors.companyValuation}
-                  helperText={errors.companyValuation?.message}
+                  control={control}
+                  errors={errors}
                 />
               </Grid>
             </Grid>
