@@ -1,15 +1,16 @@
-// apps/client-list-app/src/pages/ClientList.tsx
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { type Client, type ClientsApiResponse } from "../types";
 import "./ClientList.css";
 import axios from "axios";
 import { ClientCard } from "../components/ClientCard";
-import { Pagination, Button, CircularProgress } from "@mui/material";
-import CreateClientModal from "../components/CreateClientModal";
+import { Pagination, CircularProgress } from "@mui/material";
+import CreateClientModal, {
+  IFormInput,
+  IFormSubmit,
+} from "../components/CreateClientModal";
 import EditClientModal from "../components/EditClientModal";
 import DeleteClientModal from "../components/DeleteClientModal";
-import { type IFormInput } from "../components/EditClientModal";
 import Logo from "../assets/logo.svg";
 
 interface Props {
@@ -28,6 +29,8 @@ const ClientList: React.FC<Props> = ({ userName }) => {
   const [loadingModal, setLoadingModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+  const [recordsLimit, setRecordsLimit] = useState<number>(16);
+
   const selectClient = (clientId: number) => {
     const isAlreadySelected = selectedClients.some((c) => c.id === clientId);
 
@@ -50,7 +53,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
       const response = await api.get<ClientsApiResponse>("/users", {
         params: {
           page: currentPage,
-          limit: 16,
+          limit: recordsLimit,
         },
       });
 
@@ -73,7 +76,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
 
   useEffect(() => {
     getClients();
-  }, [currentPage]);
+  }, [currentPage, recordsLimit]);
 
   const handlePageChange = (ev: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
@@ -97,7 +100,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
     setSelectedClient(null);
   };
 
-  const handleEditClient = async (clientData: IFormInput) => {
+  const handleEditClient = async (clientData: IFormSubmit) => {
     if (!selectedClient) return;
 
     setLoadingModal(true);
@@ -179,12 +182,29 @@ const ClientList: React.FC<Props> = ({ userName }) => {
         </div>
       </header>
       <div className="main-content">
-        <div className="clients-grid">
+        <div className="clients-grid-header">
           <h2 className="title">
             {showSelectedOnly
               ? `${selectedClients.length} clientes selecionados:`
               : `${clients.length} clientes encontrados:`}
           </h2>
+          <div className="records-limit-control">
+            <span>Clientes por página:</span>
+            <select
+              className="records-select"
+              id="records-limit-select"
+              value={recordsLimit}
+              onChange={(e) => {
+                setRecordsLimit(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={8}>8</option>
+              <option value={16}>16</option>
+              <option value={24}>24</option>
+              <option value={32}>32</option>
+            </select>
+          </div>
         </div>
         <div className="clients-grid">
           {(showSelectedOnly ? selectedClients : clients).map((client) => (

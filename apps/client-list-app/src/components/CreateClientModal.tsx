@@ -37,13 +37,13 @@ const style = {
   borderRadius: "8px",
 };
 
-interface IFormInput {
+export interface IFormInput {
   name: string;
   salary: string;
   companyValuation: string;
 }
 
-interface IFormSubmit {
+export interface IFormSubmit {
   name: string;
   salary: number;
   companyValuation: number;

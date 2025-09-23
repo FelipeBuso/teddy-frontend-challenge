@@ -19,16 +19,27 @@
 }
 
 .clients-grid {
- 
   display: flex;
   margin: 0 auto;
-  align: center;
-  justify-content: space-between;
   flex-wrap: wrap;
   row-gap: 15px;
   column-gap: 20px;
   max-width: 1200px;
 }
+
+.clients-grid-header {
+  display: flex;
+  justify-content:space-between;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  row-gap: 15px;
+  column-gap: 20px;
+  max-width: 1200px;
+  font-size:18px;
+}
+
+
+
 
 .client-card {
   width: 285px;
@@ -190,3 +201,32 @@
  margin:0
 }
 
+.records-limit-control {
+  display: flex;
+  align-items: center;
+}
+
+.records-select {
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px; 
+  cursor: pointer;
+  margin-left:4px;
+}
+
+.records-select:hover {
+  border-color: #999;
+}
+
+.records-select:focus {
+  outline: none;
+  border-color: #ff6a00;
+  box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.2);
+}
+
+.text-label {
+  margin-right: 8px;
+  color: #555;
+  font-weight: 500;
+}

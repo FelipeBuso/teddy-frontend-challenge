@@ -3,29 +3,25 @@ import {
   Modal,
   Box,
   Typography,
-  TextField,
   Button,
   Grid,
   CircularProgress,
   IconButton,
-  InputAdornment,
 } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Client } from "../types";
 import { IoCloseSharp } from "react-icons/io5";
+import { InputController } from "./form/InputController";
+import { InputNumberMaskController } from "./form/InputNumberMaskController";
+import { IFormInput, IFormSubmit } from "./CreateClientModal";
+import { normalizeNumberValue } from "../utils";
 
 const validationSchema = yup.object({
   name: yup.string().required("Digite o nome."),
-  salary: yup
-    .number()
-    .typeError("Informe o salário")
-    .required("Digite o salário."),
-  companyValuation: yup
-    .number()
-    .typeError("Informe valor da empresa.")
-    .required("Digite o valor da empresa."),
+  salary: yup.string().required("Digite o salário."),
+  companyValuation: yup.string().required("Digite o valor da empresa."),
 });
 
 const style = {
@@ -40,18 +36,12 @@ const style = {
   borderRadius: "8px",
 };
 
-export interface IFormInput {
-  name: string;
-  salary: number;
-  companyValuation: number;
-}
-
 interface EditClientModalProps {
   open: boolean;
   onClose: () => void;
   loading: boolean;
   client: Client;
-  onEditClient: (values: IFormInput) => void;
+  onEditClient: (values: IFormSubmit) => void;
 }
 
 const EditClientModal: React.FC<EditClientModalProps> = ({
@@ -62,6 +52,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
   onEditClient,
 }) => {
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -70,8 +61,8 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name: client.name,
-      salary: client.salary,
-      companyValuation: client.companyValuation,
+      salary: client.salary.toString(),
+      companyValuation: client.companyValuation.toString(),
     },
   });
 
@@ -79,13 +70,18 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
   useEffect(() => {
     reset({
       name: client.name,
-      salary: client.salary,
-      companyValuation: client.companyValuation,
+      salary: client.salary.toString(),
+      companyValuation: client.companyValuation.toString(),
     });
   }, [client, reset]);
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    onEditClient(data);
+    const payload: IFormSubmit = {
+      name: data.name,
+      salary: normalizeNumberValue(data.salary),
+      companyValuation: normalizeNumberValue(data.companyValuation),
+    };
+    onEditClient(payload);
   };
 
   return (
@@ -120,46 +116,28 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={1}>
             <Grid size={12}>
-              <TextField
-                fullWidth
-                size="small"
-                label="Nome"
-                {...register("name")}
-                error={!!errors.name}
-                helperText={errors.name?.message}
+              <InputController
+                name="name"
+                placeholder="Digite o nome:"
+                control={control}
+                errors={errors}
               />
             </Grid>
 
             <Grid size={12}>
-              <TextField
-                size="small"
-                fullWidth
-                label="Salário"
-                type="number"
-                {...register("salary", { valueAsNumber: true })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">R$</InputAdornment>
-                  ),
-                }}
-                error={!!errors.salary}
-                helperText={errors.salary?.message}
+              <InputNumberMaskController
+                name="salary"
+                placeholder="Digite o salário:"
+                control={control}
+                errors={errors}
               />
             </Grid>
             <Grid size={12}>
-              <TextField
-                size="small"
-                fullWidth
-                type="number"
-                label="Valor da empresa"
-                {...register("companyValuation", { valueAsNumber: true })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">R$</InputAdornment>
-                  ),
-                }}
-                error={!!errors.companyValuation}
-                helperText={errors.companyValuation?.message}
+              <InputNumberMaskController
+                name="companyValuation"
+                placeholder="Digite o valor da empresa:"
+                control={control}
+                errors={errors}
               />
             </Grid>
           </Grid>

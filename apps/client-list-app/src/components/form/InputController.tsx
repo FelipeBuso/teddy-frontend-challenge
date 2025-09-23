@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
-import { Controller, FieldErrors } from "react-hook-form";
+import { Control, Controller, FieldErrors } from "react-hook-form";
 
 type Props = {
-  control: any;
+  control: Control<any>;
   name: string;
   placeholder: string;
   errors: FieldErrors<any>;
