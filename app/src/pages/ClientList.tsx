@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { type Client, type ClientsApiResponse } from "../types";
-import "./ClientList.css";
+import "../style/index.css";
 import axios from "axios";
 import { ClientCard } from "../components/ClientCard";
 import { Pagination, CircularProgress } from "@mui/material";
 import CreateClientModal, {
-  IFormInput,
   IFormSubmit,
 } from "../components/CreateClientModal";
 import EditClientModal from "../components/EditClientModal";
 import DeleteClientModal from "../components/DeleteClientModal";
 import Logo from "../assets/logo.svg";
+import { useNavigate } from "react-router-dom";
 
-interface Props {
-  userName: string;
-}
+const ClientList: React.FC = () => {
+  const navigate = useNavigate();
 
-const ClientList: React.FC<Props> = ({ userName }) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClients, setSelectedClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -30,6 +28,7 @@ const ClientList: React.FC<Props> = ({ userName }) => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
   const [recordsLimit, setRecordsLimit] = useState<number>(16);
+  const [userName, setUserName] = useState("");
 
   const selectClient = (clientId: number) => {
     const isAlreadySelected = selectedClients.some((c) => c.id === clientId);
@@ -72,6 +71,8 @@ const ClientList: React.FC<Props> = ({ userName }) => {
 
   useEffect(() => {
     getClients();
+    const storedName = localStorage.getItem("userName");
+    setUserName(storedName ?? "");
   }, []);
 
   useEffect(() => {
@@ -147,6 +148,11 @@ const ClientList: React.FC<Props> = ({ userName }) => {
     return <div>Error: {error}</div>;
   }
 
+  const exitApp = () => {
+    localStorage.removeItem("userName");
+    navigate("/");
+  };
+
   return (
     <div className="client-list-container">
       <header className="main-header">
@@ -175,6 +181,9 @@ const ClientList: React.FC<Props> = ({ userName }) => {
             onClick={handleShowSelectedClients}
           >
             Clientes selecionados
+          </button>
+          <button className={"main-header-button"} onClick={exitApp}>
+            Sair
           </button>
         </div>
         <div className="header-right">

@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { WelcomePage } from "./components/WelcomePage";
-
-const ClientList = () => <div>Client List Page - To be implemented</div>;
+import { useEffect, useState } from "react";
+import ClientList from "./pages/ClientList";
+import { WelcomePage } from "./pages/WelcomePage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
+        <Route index element={<WelcomePage />} />
         <Route path="/clients" element={<ClientList />} />
       </Routes>
     </Router>

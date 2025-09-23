@@ -3,12 +3,10 @@ import {
   Modal,
   Box,
   Typography,
-  TextField,
   Button,
   Grid,
   CircularProgress,
   IconButton,
-  InputAdornment,
 } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import api from "../services/api";

@@ -1,6 +1,5 @@
 import React, { Fragment } from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
 
 type Props = {
   control: Control<any>;
@@ -8,39 +7,32 @@ type Props = {
   placeholder: string;
   errors: FieldErrors<any>;
 };
-export const InputNumberMaskController: React.FC<Props> = ({
+export const InputController: React.FC<Props> = ({
   control,
   name,
   placeholder,
   errors,
 }) => {
   return (
-    <Fragment>
+    <div className="div-input-formater">
       <Controller
         name={name}
         control={control}
         render={({ field }) => {
-          console.log({ field });
           return (
-            <Fragment>
-              <NumericFormat
-                {...field}
-                thousandSeparator="."
-                decimalSeparator=","
-                prefix="R$ "
-                decimalScale={2}
+            <div className="div-input-formater">
+              <input
                 placeholder={placeholder}
-                fixedDecimalScale
+                {...field}
                 className="input-formater"
-                allowNegative={false}
               />
               {errors[name]?.message && (
                 <p className="error-text">{errors[name]?.message as string}</p>
               )}
-            </Fragment>
+            </div>
           );
         }}
       />
-    </Fragment>
+    </div>
   );
 };
