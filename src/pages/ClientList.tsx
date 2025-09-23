@@ -79,7 +79,7 @@ const ClientList: React.FC = () => {
     getClients();
   }, [currentPage, recordsLimit]);
 
-  const handlePageChange = (ev: React.ChangeEvent<unknown>, page: number) => {
+  const handlePageChange = (_ev: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
 

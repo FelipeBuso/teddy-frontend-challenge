@@ -53,7 +53,6 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
 }) => {
   const {
     control,
-    register,
     handleSubmit,
     reset,
     formState: { errors },

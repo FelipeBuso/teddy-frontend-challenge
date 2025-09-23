@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
 import ClientList from "./pages/ClientList";
 import { WelcomePage } from "./pages/WelcomePage";
 

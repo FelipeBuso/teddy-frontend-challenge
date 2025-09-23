@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+yarn-error.log
+
+dist
+.vscode
+.idea
+.pnpm-store
+
+.git
+.cache
+.env
+.env.*
