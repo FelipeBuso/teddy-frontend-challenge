@@ -2,6 +2,10 @@
 
 Este é o projeto frontend desenvolvido com **React + TypeScript + Vite**, pronto para rodar via **Docker**.
 
+[Vídeo](https://youtu.be/lraHAet4q6c)
+
+[Deploy na Vercel](https://teddy-frontend-challenge.vercel.app/)
+
 ---
 
 ## Pré-requisitos
